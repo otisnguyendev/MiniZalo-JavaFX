@@ -7,7 +7,8 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="318.0" prefWidth="404.0" style="-fx-background-color: #32afb2;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.ClientController">
+<?import javafx.scene.control.PasswordField?>
+<AnchorPane prefHeight="318.0" prefWidth="404.0" style="-fx-background-color: #32afb2;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.LoginController">
    <children>
       <Label layoutX="114.0" layoutY="30.0" text="ĐĂNG NHẬP" textFill="WHITE">
          <font>
@@ -25,7 +26,7 @@
          </font>
       </Label>
       <TextField fx:id="txtUsername" layoutX="160.0" layoutY="85.0" prefHeight="26.0" prefWidth="210.0" />
-      <TextField fx:id="txtPassword" layoutX="160.0" layoutY="128.0" prefHeight="26.0" prefWidth="210.0" />
+      <PasswordField fx:id="txtPassword" layoutX="160.0" layoutY="128.0" prefHeight="26.0" prefWidth="210.0" />
       <CheckBox fx:id="cbShowPassword" layoutX="27.0" layoutY="183.0" mnemonicParsing="false" text="Hiện mật khẩu" textFill="WHITE">
          <font>
             <Font size="18.0" />

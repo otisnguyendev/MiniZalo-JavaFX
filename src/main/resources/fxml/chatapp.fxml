@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+
+
+<AnchorPane prefHeight="494.0" prefWidth="771.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.SendMessage">
+   <children>
+      <Pane prefHeight="518.0" prefWidth="149.0" style="-fx-background-color: #33D5FE;" />
+   </children>
+</AnchorPane>

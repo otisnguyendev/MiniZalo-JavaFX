@@ -1,30 +1,29 @@
 package com.lab.minizalojavafx.utils;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.sql.*;
 
 public class DBUtils {
     private Connection conn;
-    private PreparedStatement preparedStatement;
-    private ResultSet resultSet;
-    private Statement statement;
 
     public Connection connectToDB() {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/minizalo", "root", "123456");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mini_zalo", "root", "123456");
             return conn;
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     public boolean checkUsernameExist(String username) {
-        try {
-            preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE username = ?");
+        try (Connection conn = connectToDB();
+             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM client WHERE username = ?")) {
             preparedStatement.setString(1, username);
-            resultSet = preparedStatement.executeQuery();
-            return resultSet.next();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -32,26 +31,46 @@ public class DBUtils {
     }
 
     public boolean checkEmailExist(String email) {
-        try {
-            preparedStatement = conn.prepareStatement("SELECT * FROM user WHERE email = ?");
+        try (Connection conn = connectToDB();
+             PreparedStatement preparedStatement = conn.prepareStatement("SELECT * FROM client WHERE email = ?")) {
             preparedStatement.setString(1, email);
-            resultSet = preparedStatement.executeQuery();
-            return resultSet.next();
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public void registerUser (String username, String email, String password) {
-        try {
-            preparedStatement = conn.prepareStatement("INSERT INTO user (username, email, password) VALUES (?, ?, ?)");
+    public boolean registerUser(String username, String email, String password) {
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        try (Connection conn = connectToDB();
+             PreparedStatement preparedStatement = conn.prepareStatement("INSERT INTO client (username, email, password) VALUES (?, ?, ?)")) {
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, email);
-            preparedStatement.setString(3, password);
-            preparedStatement.executeUpdate();
+            preparedStatement.setString(3, hashedPassword);
+            return preparedStatement.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean loginUser(String username, String password) {
+        try (Connection conn = connectToDB();
+             PreparedStatement ps = conn.prepareStatement("SELECT password FROM client WHERE username = ?")) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("password");
+                    return BCrypt.checkpw(password, hashedPassword);
+                }
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }
