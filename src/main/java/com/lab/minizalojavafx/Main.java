@@ -1,23 +1,9 @@
 package com.lab.minizalojavafx;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
+import com.lab.minizalojavafx.server.ServerLauncher;
 
-import java.io.IOException;
-
-public class Main extends Application {
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/fxml/login.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Mini Zalo");
-        stage.setScene(scene);
-        stage.show();
-    }
-
+public class Main {
     public static void main(String[] args) {
-        launch();
+        ServerLauncher.main(new String[0]);
     }
 }

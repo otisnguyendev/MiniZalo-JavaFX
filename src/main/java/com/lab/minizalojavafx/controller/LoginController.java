@@ -2,7 +2,7 @@ package com.lab.minizalojavafx.controller;
 
 import com.lab.minizalojavafx.message.AlertMessage;
 import com.lab.minizalojavafx.model.Client;
-import com.lab.minizalojavafx.utils.DBUtils;
+import com.lab.minizalojavafx.util.DBUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -67,9 +67,21 @@ public class LoginController implements Initializable {
         boolean loginSuccess = client.login(dbUtils);
         if (loginSuccess) {
             alertMessage.success("Login successful");
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/client.fxml"));
+                Parent root = loader.load();
+                ClientController clientController = loader.getController();
+                clientController.setClientHandler(client.getClientHandler());
+
+                Stage stage = (Stage) btnLogin.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                alertMessage.error("Failed to load chat interface.");
+            }
         } else {
             alertMessage.error("Login failed");
         }
     }
-
 }

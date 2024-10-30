@@ -1,4 +1,4 @@
-package com.lab.minizalojavafx.utils;
+package com.lab.minizalojavafx.util;
 
 import org.mindrot.jbcrypt.BCrypt;
 

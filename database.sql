@@ -11,6 +11,8 @@ CREATE TABLE client (
 
 select  * from client;
 	    
--- username: demoUser, password: 12345678 
+-- username: testuser1, password: 123456789
+-- username: testuser2, password: 123456789
+
 INSERT INTO client (username, email, password)
-VALUES ('demoUser', 'demo@example.com', '$2a$10$7RTP3kpZ7o.OvppqOGCHP.aXHhfuZPzayYRcoy4zUhz5oBlVtXIlO');
+VALUES ('testuser2', 'test2@gmail.com', '123456789');

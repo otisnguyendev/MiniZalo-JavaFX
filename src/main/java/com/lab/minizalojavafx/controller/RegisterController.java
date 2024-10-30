@@ -2,7 +2,7 @@ package com.lab.minizalojavafx.controller;
 
 import com.lab.minizalojavafx.message.AlertMessage;
 import com.lab.minizalojavafx.model.Client;
-import com.lab.minizalojavafx.utils.DBUtils;
+import com.lab.minizalojavafx.util.DBUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
