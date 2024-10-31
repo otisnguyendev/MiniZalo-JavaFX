@@ -1,40 +1,110 @@
 package com.lab.minizalojavafx.server;
 
-import com.lab.minizalojavafx.client.ClientHandler;
-
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 public class Server {
+    private static Server instance;
     private ServerSocket serverSocket;
-    private static Server server;
-    private List<ClientHandler> clients = new ArrayList<>();
+    private List<Socket> clientSockets = new ArrayList<>();
+    private Consumer<String> messageReceivedCallback;
+    private Map<Socket, String> clientMap = new HashMap<>();
 
-    private Server() throws IOException {
-        serverSocket = new ServerSocket(3001);
+    private Server() {
     }
 
-    public static Server getInstance() throws IOException {
-        if (server == null) {
-            server = new Server();
+    public static synchronized Server getInstance() {
+        if (instance == null) {
+            instance = new Server();
         }
-        return server;
+        return instance;
     }
 
-    public void makeSocket() {
-        while (!serverSocket.isClosed()) {
+    public void makeSocket() throws IOException {
+        serverSocket = new ServerSocket(3001);
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            clientSockets.add(clientSocket);
+            new Thread(() -> handleClient(clientSocket)).start();
+        }
+    }
+
+    private void handleClient(Socket clientSocket) {
+        try (DataInputStream in = new DataInputStream(clientSocket.getInputStream())) {
+            String username = in.readUTF();
+            clientMap.put(clientSocket, username);
+            broadcastUserList();
+            while (true) {
+                String message = in.readUTF();
+                if (message.startsWith("ADD_USER-")) {
+                    String userName = message.split("-")[1];
+                    clientMap.put(clientSocket, userName);
+                    broadcastUserList();
+                } else if (message.startsWith("REMOVE_USER-")) {
+                    clientMap.remove(clientSocket);
+                    broadcastUserList();
+                    break;
+                } else {
+                    messageReceivedCallback.accept(message);
+                    broadcastMessage(message, clientSocket);
+                }
+            }
+        } catch (IOException e) {
+            clientSockets.remove(clientSocket);
+            clientMap.remove(clientSocket);
+            broadcastUserList();
+        }
+    }
+
+    private void broadcastUserList() {
+        String userListMessage = "USER_LIST-" + String.join(",", clientMap.values());
+        for (Socket clientSocket : clientMap.keySet()) {
+            sendToClient(clientSocket, userListMessage);
+        }
+    }
+
+    private void sendToClient(Socket clientSocket, String message) {
+        try {
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+            out.writeUTF(message);
+        } catch (IOException e) {
+            clientMap.remove(clientSocket);
+        }
+    }
+
+    public void broadcastMessage(String message) {
+        for (Socket clientSocket : clientSockets) {
             try {
-                Socket socket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(socket, clients);
-                clients.add(clientHandler);
-                new Thread(clientHandler).start();
-                System.out.println("Client socket accepted: " + socket.toString());
+                DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+                out.writeUTF(message);
             } catch (IOException e) {
-                e.printStackTrace();
+                clientSockets.remove(clientSocket);
             }
         }
+    }
+
+    public void broadcastMessage(String message, Socket senderSocket) {
+        for (Socket clientSocket : clientSockets) {
+            if (!clientSocket.equals(senderSocket)) {
+                try {
+                    DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+                    out.writeUTF(message);
+                } catch (IOException e) {
+                    clientSockets.remove(clientSocket);
+                }
+            }
+        }
+    }
+
+    public void setOnMessageReceived(Consumer<String> callback) {
+        this.messageReceivedCallback = callback;
     }
 }

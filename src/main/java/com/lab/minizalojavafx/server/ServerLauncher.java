@@ -20,15 +20,5 @@ public class ServerLauncher extends Application {
         primaryStage.centerOnScreen();
         primaryStage.setResizable(false);
         primaryStage.show();
-
-        Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initOwner(primaryStage.getScene().getWindow());
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/fxml/login.fxml"))));
-        stage.setTitle("Mini Zalo");
-        stage.centerOnScreen();
-        stage.setResizable(false);
-        stage.show();
-
     }
 }

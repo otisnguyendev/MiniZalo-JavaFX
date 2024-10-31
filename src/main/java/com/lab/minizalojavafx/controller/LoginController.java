@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import lombok.Setter;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,6 +36,8 @@ public class LoginController implements Initializable {
     private Client client;
     private AlertMessage alertMessage;
 
+    private @Setter Runnable onLoginSuccess;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         dbUtils = new DBUtils();
@@ -56,6 +59,7 @@ public class LoginController implements Initializable {
         btnLogin.setOnAction(this::login);
     }
 
+
     public void login(ActionEvent actionEvent) {
         dbUtils = new DBUtils();
         String username = txtUsername.getText();
@@ -67,21 +71,13 @@ public class LoginController implements Initializable {
         boolean loginSuccess = client.login(dbUtils);
         if (loginSuccess) {
             alertMessage.success("Login successful");
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/client.fxml"));
-                Parent root = loader.load();
-                ClientController clientController = loader.getController();
-                clientController.setClientHandler(client.getClientHandler());
-
-                Stage stage = (Stage) btnLogin.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (IOException e) {
-                e.printStackTrace();
-                alertMessage.error("Failed to load chat interface.");
+            if (onLoginSuccess != null) {
+                onLoginSuccess.run();
             }
         } else {
             alertMessage.error("Login failed");
         }
+
+
     }
 }

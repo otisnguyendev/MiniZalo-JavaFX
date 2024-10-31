@@ -17,12 +17,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 public class ServerController {
 
@@ -60,6 +57,7 @@ public class ServerController {
         new Thread(() -> {
             try {
                 server = Server.getInstance();
+                server.setOnMessageReceived(this::receiveMessage);
                 server.makeSocket();
             } catch (IOException e) {
                 alertMessage.error("Server Error\", \"Unable to start server: " + e.getMessage());
@@ -75,14 +73,17 @@ public class ServerController {
 
     private void openLoginWindow() {
         Stage stage = new Stage();
-        stage.initModality(Modality.WINDOW_MODAL);
-        stage.initOwner(pane.getScene().getWindow());
-        stage.setTitle("EChat");
+        stage.setTitle("Mini Zalo");
         stage.centerOnScreen();
         stage.setResizable(false);
 
         try {
-            AnchorPane loginPane = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
+            AnchorPane loginPane = fxmlLoader.load();
+
+            LoginController loginController = fxmlLoader.getController();
+            loginController.setOnLoginSuccess(() -> openClientWindow(stage));
+
             stage.setScene(new Scene(loginPane));
             stage.show();
         } catch (IOException e) {
@@ -91,11 +92,21 @@ public class ServerController {
         }
     }
 
-    private void sendMsg(String msgToSend) {
-        if (msgToSend == null || msgToSend.isEmpty()) return;
+    private void openClientWindow(Stage loginStage) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/client.fxml"));
+            Stage clientStage = new Stage();
+            clientStage.setTitle("Client");
+            clientStage.centerOnScreen();
+            clientStage.setResizable(false);
+            clientStage.setScene(new Scene(fxmlLoader.load()));
+            clientStage.show();
 
-        addMessageToChatBox(msgToSend, Pos.CENTER_RIGHT, "#0693e3", Color.WHITE, 14);
-        addTimeToChatBox(Pos.CENTER_RIGHT, 8);
+            loginStage.close();
+        } catch (IOException e) {
+            alertMessage.error("Client Load Error\", \"Can't load client window.");
+            e.printStackTrace();
+        }
     }
 
     public void receiveMessage(String msgFromClient) {
@@ -117,21 +128,6 @@ public class ServerController {
 
             hBox.getChildren().add(textFlow);
             staticVBox.getChildren().add(hBox);
-        });
-    }
-
-    private static void addTimeToChatBox(Pos alignment, int fontSize) {
-        Platform.runLater(() -> {
-            HBox hBoxTime = new HBox();
-            hBoxTime.setAlignment(alignment);
-            hBoxTime.setPadding(new Insets(0, 5, 5, 10));
-
-            String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
-            Text timeText = new Text(currentTime);
-            timeText.setStyle("-fx-font-size: " + fontSize);
-
-            hBoxTime.getChildren().add(timeText);
-            staticVBox.getChildren().add(hBoxTime);
         });
     }
 }
