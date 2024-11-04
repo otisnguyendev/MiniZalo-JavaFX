@@ -87,7 +87,7 @@ public class ServerController {
             stage.setScene(new Scene(loginPane));
             stage.show();
         } catch (IOException e) {
-            alertMessage.error("Load Error\", \"Something went wrong. Can't load login screen.");
+            alertMessage.error("Something went wrong. Can't load login screen.");
             e.printStackTrace();
         }
     }
@@ -104,7 +104,7 @@ public class ServerController {
 
             loginStage.close();
         } catch (IOException e) {
-            alertMessage.error("Client Load Error\", \"Can't load client window.");
+            alertMessage.error("Can't load client window.");
             e.printStackTrace();
         }
     }

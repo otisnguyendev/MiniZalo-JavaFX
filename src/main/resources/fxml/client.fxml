@@ -67,7 +67,7 @@
             <Font name="Bell MT Bold" size="20.0" />
          </font>
       </Text>
-      <ComboBox id="cbClientOnline" layoutX="552.0" layoutY="476.0" prefHeight="34.0" prefWidth="200.0" promptText="Chọn người nhận" />
+      <ComboBox fx:id="cbClientOnline" layoutX="552.0" layoutY="476.0" prefHeight="34.0" prefWidth="200.0" promptText="Chọn người nhận" />
       <ListView fx:id="onlineUsersList" layoutX="550.0" layoutY="61.0" prefHeight="406.0" prefWidth="200.0" />
    </children>
 </AnchorPane>

@@ -10,9 +10,9 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -48,12 +48,15 @@ public class ClientController {
     private VBox vBox;
 
     @FXML
+    private ComboBox<String> cbClientOnline;
+
+    @FXML
     private ListView<String> onlineUsersList;
 
     private Socket socket;
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
-    private String clientName = "Client";
+    private String clientName;
     private AlertMessage alertMessage;
 
     @Setter
@@ -72,8 +75,14 @@ public class ClientController {
 
     @FXML
     void sendButtonOnAction(ActionEvent event) {
-        String message = txtMsg.getText();
-        sendMsg(message);
+        String message = txtMsg.getText().trim();
+        String recipient = cbClientOnline.getValue();
+
+        if (recipient != null && !recipient.isEmpty()) {
+            sendMsg(message, recipient);
+        } else {
+            alertMessage.error("Vui lòng chọn người nhận.");
+        }
     }
 
     @FXML
@@ -85,12 +94,14 @@ public class ClientController {
         txtLabel.setText(clientName);
         connectToServer();
 
+        cbClientOnline.getItems().clear();
         vBox.heightProperty().addListener((ChangeListener<Number>) (observableValue, oldValue, newValue) -> {
             scrollPain.setVvalue((Double) newValue);
         });
 
         emoji();
     }
+
 
     private void connectToServer() {
         new Thread(() -> {
@@ -107,7 +118,7 @@ public class ClientController {
                     receiveMessage(receivingMsg);
                 }
             } catch (IOException e) {
-                alertMessage.error("Connection Error\", \"Could not connect to server at localhost:3001. Please ensure the server is running.");
+                alertMessage.error("Could not connect to server at localhost:3001. Please ensure the server is running.");
                 e.printStackTrace();
             }
         }).start();
@@ -130,7 +141,6 @@ public class ClientController {
         }
     }
 
-
     private void emoji() {
         EmojiPicker emojiPicker = new EmojiPicker();
         VBox emojiBox = new VBox(emojiPicker);
@@ -152,7 +162,7 @@ public class ClientController {
         });
     }
 
-    private void sendMsg(String msgToSend) {
+    private void sendMsg(String msgToSend, String recipient) {
         if (dataOutputStream != null && socket.isConnected() && !msgToSend.isEmpty()) {
             HBox hBox = createMessageHBox(msgToSend, Pos.CENTER_RIGHT, "#0693e3");
             vBox.getChildren().add(hBox);
@@ -166,17 +176,18 @@ public class ClientController {
             vBox.getChildren().add(hBoxTime);
 
             try {
-                dataOutputStream.writeUTF(clientName + "-" + msgToSend);
+                dataOutputStream.writeUTF(recipient + "-" + clientName + "-" + msgToSend);
                 dataOutputStream.flush();
             } catch (IOException e) {
-                alertMessage.error("Message Error\", \"Failed to send message to server.");
+                alertMessage.error("Failed to send message to server.");
                 e.printStackTrace();
             }
             txtMsg.clear();
         } else if (dataOutputStream == null) {
-            alertMessage.error("Not Connected\", \"Cannot send message. Not connected to server.");
+            alertMessage.error("Cannot send message. Not connected to server.");
         }
     }
+
 
 
     private void sendImage(String filePath) {
@@ -195,7 +206,7 @@ public class ClientController {
             dataOutputStream.writeUTF(clientName + "-" + filePath);
             dataOutputStream.flush();
         } catch (IOException e) {
-            alertMessage.error("Image Send Error\", \"Failed to send image to server.");
+            alertMessage.error("Failed to send image to server.");
             e.printStackTrace();
         }
     }
@@ -206,21 +217,12 @@ public class ClientController {
                 updateClientOnline(msg);
             } else {
                 String[] parts = msg.split("-");
-                if (parts.length >= 2) {
-                    String name = parts[0];
-                    String content = parts[1];
+                if (parts.length >= 3) {
+                    String recipient = parts[0];
+                    String name = parts[1];
+                    String content = parts[2];
 
-                    if (content.matches(".*\\.(png|jpe?g|gif)$")) {
-                        Image image = new Image(content);
-                        ImageView imageView = new ImageView(image);
-                        imageView.setFitHeight(200);
-                        imageView.setFitWidth(200);
-
-                        HBox hBox = new HBox(imageView);
-                        hBox.setAlignment(Pos.CENTER_LEFT);
-                        hBox.setPadding(new Insets(5, 5, 5, 10));
-                        vBox.getChildren().add(hBox);
-                    } else {
+                    if (recipient.equals(clientName)) {
                         HBox hBox = createMessageHBox(content, Pos.CENTER_LEFT, "#abb8c3");
                         vBox.getChildren().add(hBox);
                     }
@@ -230,6 +232,7 @@ public class ClientController {
             }
         });
     }
+
 
     public void setClientName(String name) {
         this.clientName = name;
@@ -261,7 +264,10 @@ public class ClientController {
             Platform.runLater(() -> {
                 onlineUsersList.getItems().clear();
                 onlineUsersList.getItems().addAll(onlineUsers);
+                cbClientOnline.getItems().clear();
+                cbClientOnline.getItems().addAll(onlineUsers);
             });
         }
     }
+
 }
