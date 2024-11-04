@@ -3,6 +3,9 @@ package com.lab.minizalojavafx.controller;
 import com.lab.minizalojavafx.client.ClientHandler;
 import com.lab.minizalojavafx.emoji.EmojiPicker;
 import com.lab.minizalojavafx.message.AlertMessage;
+import com.lab.minizalojavafx.model.Attachment;
+import com.lab.minizalojavafx.model.Message;
+import com.lab.minizalojavafx.util.DBUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -22,6 +25,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import lombok.Setter;
+
+import java.sql.SQLException;
+import java.util.List;
 
 import java.awt.*;
 import java.io.DataInputStream;
@@ -53,11 +59,18 @@ public class ClientController {
     @FXML
     private ListView<String> onlineUsersList;
 
+    @FXML
+    private ListView<String> getUserList;
+    @FXML
+    private TextField findClient;
+
     private Socket socket;
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
     private String clientName;
     private AlertMessage alertMessage;
+
+    private DBUtils dbUtils = new DBUtils();
 
     @Setter
     private ClientHandler clientHandler;
@@ -67,9 +80,13 @@ public class ClientController {
         FileDialog dialog = new FileDialog((Frame) null, "Select File to Open");
         dialog.setMode(FileDialog.LOAD);
         dialog.setVisible(true);
+
         String file = dialog.getDirectory() + dialog.getFile();
         dialog.dispose();
-        sendImage(file);
+
+        String recipient = "recipientUsername";
+
+        sendImage(file, recipient);
         System.out.println(file + " chosen.");
     }
 
@@ -82,6 +99,19 @@ public class ClientController {
             sendMsg(message, recipient);
         } else {
             alertMessage.error("Vui lòng chọn người nhận.");
+        }
+    }
+
+    @FXML
+    void onFindClientAction(ActionEvent event) {
+        String query = findClient.getText().trim();
+
+        if (!query.isEmpty()) {
+            List<String> results = dbUtils.searchClients(query);
+            getUserList.getItems().clear();
+            getUserList.getItems().addAll(results);
+        } else {
+            getUserList.getItems().clear();
         }
     }
 
@@ -102,6 +132,54 @@ public class ClientController {
         emoji();
     }
 
+    @FXML
+    void onSelectRecipient(ActionEvent event) {
+        String recipient = cbClientOnline.getValue();
+        if (recipient != null && !recipient.isEmpty()) {
+            loadOldMessages(clientName, recipient);
+        }
+    }
+
+    private void loadOldMessages(String sender, String recipient) {
+        vBox.getChildren().clear();
+
+        List<Message> messages = dbUtils.getMessagesBetweenUsers(sender, recipient);
+        for (Message message : messages) {
+            Pos alignment = message.getSender().equals(sender) ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT;
+            String color = message.getSender().equals(sender) ? "#0693e3" : "#abb8c3";
+            HBox messageHBox = createMessageHBox(message.getContent(), alignment, color);
+            vBox.getChildren().add(messageHBox);
+
+            List<Attachment> attachments = dbUtils.getAttachmentsByMessageId(message.getId());
+            for (Attachment attachment : attachments) {
+                if ("image".equals(attachment.getFileType())) {
+                    ImageView imageView = new ImageView(new Image("file:" + attachment.getFilePath()));
+                    imageView.setFitWidth(200);
+                    imageView.setPreserveRatio(true);
+                    imageView.setSmooth(true);
+                    imageView.setStyle("-fx-padding: 5;");
+                    vBox.getChildren().add(imageView);
+                } else if ("file".equals(attachment.getFileType())) {
+                    Button fileButton = new Button("Tải tệp: " + attachment.getFilePath());
+                    fileButton.setOnAction(event -> {
+                        downloadFile(attachment.getFilePath());
+                    });
+                    vBox.getChildren().add(fileButton);
+                }
+            }
+
+            Text timeText = new Text(message.getTimestamp().format(DateTimeFormatter.ofPattern("HH:mm")));
+            timeText.setStyle("-fx-font-size: 8");
+            HBox timeHBox = new HBox(timeText);
+            timeHBox.setAlignment(alignment);
+            timeHBox.setPadding(new Insets(0, 5, 5, 10));
+            vBox.getChildren().add(timeHBox);
+        }
+    }
+
+    private void downloadFile(String filePath) {
+        System.out.println("Tải tệp từ: " + filePath);
+    }
 
     private void connectToServer() {
         new Thread(() -> {
@@ -178,6 +256,8 @@ public class ClientController {
             try {
                 dataOutputStream.writeUTF(recipient + "-" + clientName + "-" + msgToSend);
                 dataOutputStream.flush();
+
+                dbUtils.saveMessageToDatabase(clientName, recipient, msgToSend);
             } catch (IOException e) {
                 alertMessage.error("Failed to send message to server.");
                 e.printStackTrace();
@@ -190,8 +270,8 @@ public class ClientController {
 
 
 
-    private void sendImage(String filePath) {
-        Image image = new Image(filePath);
+    private void sendImage(String filePath, String recipient) {
+        Image image = new Image("file:" + filePath);
         ImageView imageView = new ImageView(image);
         imageView.setFitHeight(200);
         imageView.setFitWidth(200);
@@ -200,16 +280,25 @@ public class ClientController {
         hBox.setPadding(new Insets(5, 5, 5, 10));
         hBox.setAlignment(Pos.CENTER_RIGHT);
         vBox.getChildren().add(hBox);
+
         alertMessage = new AlertMessage();
 
         try {
             dataOutputStream.writeUTF(clientName + "-" + filePath);
             dataOutputStream.flush();
+
+            dbUtils.saveMessageToDatabase(clientName, recipient, "image");
+
+            int messageId = dbUtils.getLastInsertedMessageId(clientName, recipient);
+
+            dbUtils.saveAttachment(messageId, filePath, "image");
         } catch (IOException e) {
             alertMessage.error("Failed to send image to server.");
             e.printStackTrace();
         }
     }
+
+
 
     public void receiveMessage(String msg) {
         Platform.runLater(() -> {
@@ -255,7 +344,6 @@ public class ClientController {
         hBox.getChildren().add(textFlow);
         return hBox;
     }
-
 
     public void updateClientOnline(String userListMessage) {
         String[] parts = userListMessage.split("-");

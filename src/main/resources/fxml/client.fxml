@@ -12,7 +12,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="pane" prefHeight="523.0" prefWidth="770.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.ClientController">
+<AnchorPane fx:id="pane" prefHeight="523.0" prefWidth="965.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.ClientController">
    <children>
       <ScrollPane fx:id="scrollPain" layoutX="17.0" layoutY="61.0" prefHeight="406.0" prefWidth="520.0">
          <content>
@@ -62,12 +62,19 @@
             </ImageView>
          </graphic>
       </Button>
-      <Text fx:id="txtLabel1" fill="#2b50c9" layoutX="593.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Client Online">
+      <Text fx:id="txtLabel1" fill="#2b50c9" layoutX="578.0" layoutY="47.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Client Online">
          <font>
             <Font name="Bell MT Bold" size="20.0" />
          </font>
       </Text>
-      <ComboBox fx:id="cbClientOnline" layoutX="552.0" layoutY="476.0" prefHeight="34.0" prefWidth="200.0" promptText="Chọn người nhận" />
-      <ListView fx:id="onlineUsersList" layoutX="550.0" layoutY="61.0" prefHeight="406.0" prefWidth="200.0" />
+      <ComboBox fx:id="cbClientOnline" layoutX="552.0" layoutY="476.0" onAction="#onSelectRecipient" prefHeight="34.0" prefWidth="170.0" promptText="Chọn người nhận" />
+      <ListView fx:id="onlineUsersList" layoutX="550.0" layoutY="61.0" prefHeight="406.0" prefWidth="169.0" />
+      <Text fx:id="txtLabel11" fill="#2b50c9" layoutX="779.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tìm kiếm">
+         <font>
+            <Font name="Bell MT Bold" size="20.0" />
+         </font>
+      </Text>
+      <ListView fx:id="getUserList" layoutX="739.0" layoutY="104.0" prefHeight="363.0" prefWidth="162.0" />
+      <TextField fx:id="findClient" layoutX="739.0" layoutY="63.0" onAction="#onFindClientAction" prefHeight="26.0" prefWidth="161.0" />
    </children>
 </AnchorPane>

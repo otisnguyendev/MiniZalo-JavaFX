@@ -32,10 +32,10 @@ CREATE TABLE attachment
     FOREIGN KEY (message_id) REFERENCES message (id) ON DELETE CASCADE
 );
 
+select * from client;
+select * from message;
+select * from attachment;
 
-
-select *
-from client;
 
 -- username: testuser2,3,4,5: password: 123456789
 INSERT INTO client (username, email, password)
