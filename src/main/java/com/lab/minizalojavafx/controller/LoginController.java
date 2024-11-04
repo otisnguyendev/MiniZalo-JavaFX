@@ -59,9 +59,7 @@ public class LoginController implements Initializable {
         btnLogin.setOnAction(this::login);
     }
 
-
     public void login(ActionEvent actionEvent) {
-        dbUtils = new DBUtils();
         String username = txtUsername.getText();
         String password = txtPassword.getText();
 
@@ -71,13 +69,26 @@ public class LoginController implements Initializable {
         boolean loginSuccess = client.login(dbUtils);
         if (loginSuccess) {
             alertMessage.success("Login successful");
+
             if (onLoginSuccess != null) {
                 onLoginSuccess.run();
+            }
+
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/client.fxml"));
+                Parent root = loader.load();
+
+                ClientController clientController = loader.getController();
+                clientController.setClientName(username);
+
+                Stage stage = (Stage) btnLogin.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         } else {
             alertMessage.error("Login failed");
         }
-
-
     }
 }
