@@ -29,16 +29,11 @@
             </ImageView>
          </graphic>
       </Button>
-      <ImageView fitHeight="87.0" fitWidth="81.0" layoutX="-10.0" layoutY="-11.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="50.0" fitWidth="57.0" layoutX="17.0" layoutY="4.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../img/MiniZalo-logo-img.png" />
+            <Image url="@../img/logo.png" />
          </image>
       </ImageView>
-      <Text fill="#0d47a1" layoutX="65.0" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Mini Zalo">
-         <font>
-            <Font size="20.0" />
-         </font>
-      </Text>
       <Text fx:id="txtLabel" fill="#2b50c9" layoutX="252.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Client">
          <font>
             <Font name="Bell MT Bold" size="20.0" />

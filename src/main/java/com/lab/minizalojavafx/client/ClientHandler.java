@@ -1,5 +1,7 @@
 package com.lab.minizalojavafx.client;
 
+import lombok.Getter;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,6 +9,7 @@ import java.net.Socket;
 import java.util.List;
 
 public class ClientHandler implements Runnable {
+    @Getter
     private Socket socket;
     private List<ClientHandler> clients;
     private DataInputStream dataInputStream;

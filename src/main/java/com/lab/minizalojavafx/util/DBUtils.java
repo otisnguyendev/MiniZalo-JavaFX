@@ -177,20 +177,16 @@ public class DBUtils {
         return clients;
     }
 
-
-
-
-    public boolean saveAttachment(int messageId, String filePath, String fileType) {
-        String query = "INSERT INTO attachment (message_id, file_path, file_type) VALUES (?, ?, ?)";
+    public void saveAttachment(int messageId, String filePath, String fileType) {
+        String query = "INSERT INTO attachments (message_id, file_path, file_type) VALUES (?, ?, ?)";
         try (Connection conn = connectToDB();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, messageId);
             stmt.setString(2, filePath);
             stmt.setString(3, fileType);
-            return stmt.executeUpdate() > 0;
+            stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
@@ -234,6 +230,43 @@ public class DBUtils {
             e.printStackTrace();
         }
         return -1;
+    }
+
+
+    public boolean emailExists(String email) {
+        String query = "SELECT * FROM client WHERE email = ?";
+        try (Connection conn = connectToDB();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, email);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+    public boolean resetPassword(String email, String newPassword) {
+        if (!emailExists(email)) {
+            System.out.println("Email không tồn tại trong hệ thống.");
+            return false;
+        }
+        String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+        String query = "UPDATE client SET password = ? WHERE email = ?";
+
+        try (Connection conn = connectToDB();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, hashedPassword);
+            pstmt.setString(2, email);
+            int rowsUpdated = pstmt.executeUpdate();
+
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 

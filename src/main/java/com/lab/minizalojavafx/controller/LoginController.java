@@ -9,9 +9,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import lombok.Setter;
 
@@ -32,6 +30,16 @@ public class LoginController implements Initializable {
     @FXML
     private PasswordField txtPassword;
 
+    @FXML
+    private TextField txtPasswordVisible;
+
+    @FXML
+    private CheckBox cbShowPassword;
+
+    @FXML
+    private Label lbForgotPassword;
+
+
     private DBUtils dbUtils;
     private Client client;
     private AlertMessage alertMessage;
@@ -43,6 +51,9 @@ public class LoginController implements Initializable {
         dbUtils = new DBUtils();
         client = new Client();
         alertMessage = new AlertMessage();
+
+        cbShowPassword.setOnAction(event -> togglePasswordVisibility());
+        lbForgotPassword.setOnMouseClicked(event -> goToForgotPassword());
 
         btnRegister.setOnAction(event -> {
             try {
@@ -61,7 +72,7 @@ public class LoginController implements Initializable {
 
     public void login(ActionEvent actionEvent) {
         String username = txtUsername.getText();
-        String password = txtPassword.getText();
+        String password = cbShowPassword.isSelected() ? txtPasswordVisible.getText() : txtPassword.getText();
 
         client.setUsername(username);
         client.setPassword(password);
@@ -86,12 +97,39 @@ public class LoginController implements Initializable {
                 stage.show();
 
                 Stage loginStage = (Stage) btnLogin.getScene().getWindow();
+//                loginStage.setScene(new Scene(root));
+//                loginStage.show();/
+
                 loginStage.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             alertMessage.error("Login failed");
+        }
+    }
+
+    private void togglePasswordVisibility() {
+        if (cbShowPassword.isSelected()) {
+            txtPasswordVisible.setText(txtPassword.getText());
+            txtPasswordVisible.setVisible(true);
+            txtPassword.setVisible(false);
+        } else {
+            txtPassword.setText(txtPasswordVisible.getText());
+            txtPassword.setVisible(true);
+            txtPasswordVisible.setVisible(false);
+        }
+    }
+
+    private void goToForgotPassword() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/forgot-password.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = (Stage) lbForgotPassword.getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -188,6 +188,7 @@ public class ClientController {
                 socket = new Socket("localhost", 3001);
                 dataInputStream = new DataInputStream(socket.getInputStream());
                 dataOutputStream = new DataOutputStream(socket.getOutputStream());
+                System.out.println("Client name: " + clientName);
                 dataOutputStream.writeUTF(clientName);
                 System.out.println("Client connected");
 

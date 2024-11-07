@@ -60,7 +60,7 @@ public class ServerController {
                 server.setOnMessageReceived(this::receiveMessage);
                 server.makeSocket();
             } catch (IOException e) {
-                alertMessage.error("Server Error\", \"Unable to start server: " + e.getMessage());
+                alertMessage.error("Unable to start server: " + e.getMessage());
                 e.printStackTrace();
             }
         }).start();

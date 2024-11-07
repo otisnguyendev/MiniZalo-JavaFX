@@ -27,6 +27,7 @@
       </Label>
       <TextField fx:id="txtUsername" layoutX="160.0" layoutY="85.0" prefHeight="26.0" prefWidth="210.0" />
       <PasswordField fx:id="txtPassword" layoutX="160.0" layoutY="128.0" prefHeight="26.0" prefWidth="210.0" />
+      <TextField fx:id="txtPasswordVisible" layoutX="160.0" layoutY="128.0" prefHeight="26.0" prefWidth="210.0" visible="false" />
       <CheckBox fx:id="cbShowPassword" layoutX="27.0" layoutY="183.0" mnemonicParsing="false" text="Hiện mật khẩu" textFill="WHITE">
          <font>
             <Font size="18.0" />
