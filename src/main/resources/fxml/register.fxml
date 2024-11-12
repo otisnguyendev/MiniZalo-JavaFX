@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="354.0" prefWidth="447.0" style="-fx-background-color: #32afb2;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.lab.minizalojavafx.controller.RegisterController">
     <children>
-        <Label layoutX="154.0" layoutY="33.0" text="ĐĂNG NHẬP" textFill="WHITE">
+        <Label layoutX="154.0" layoutY="33.0" text="ĐĂNG KÝ" textFill="WHITE">
             <font>
                 <Font size="24.0" />
             </font>

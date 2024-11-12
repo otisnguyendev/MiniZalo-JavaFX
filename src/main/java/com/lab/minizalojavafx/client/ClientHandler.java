@@ -33,7 +33,11 @@ public class ClientHandler implements Runnable {
             while (socket.isConnected() && (msg = dataInputStream.readUTF()) != null) {
                 synchronized (clients) {
                     for (ClientHandler clientHandler : clients) {
-                        if (clientHandler.socket.getPort() != socket.getPort()) {
+                        if (msg.startsWith("IMAGE-") && clientHandler.socket.getPort() != socket.getPort()) {
+                            clientHandler.dataOutputStream.writeUTF(msg);
+                            clientHandler.dataOutputStream.flush();
+                        } else if (clientHandler.socket.getPort() != socket.getPort()) {
+                            // Nếu không phải ảnh thì gửi tin nhắn bình thường
                             clientHandler.dataOutputStream.writeUTF(msg);
                             clientHandler.dataOutputStream.flush();
                         }

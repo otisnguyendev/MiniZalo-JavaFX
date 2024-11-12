@@ -56,6 +56,14 @@ public class Server {
                     messageReceivedCallback.accept(message);
                     broadcastMessage(message, clientSocket);
                 }
+
+                if (message.startsWith("IMAGE-")) {
+                    broadcastMessage(message, clientSocket);
+                } else {
+                    messageReceivedCallback.accept(message);
+                    broadcastMessage(message, clientSocket);
+                }
+
             }
         } catch (IOException e) {
             clientSockets.remove(clientSocket);
@@ -103,6 +111,7 @@ public class Server {
             }
         }
     }
+
 
     public void setOnMessageReceived(Consumer<String> callback) {
         this.messageReceivedCallback = callback;

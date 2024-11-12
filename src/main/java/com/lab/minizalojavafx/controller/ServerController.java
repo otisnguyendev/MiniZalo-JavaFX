@@ -11,6 +11,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -110,8 +112,28 @@ public class ServerController {
     }
 
     public void receiveMessage(String msgFromClient) {
-        addMessageToChatBox(msgFromClient, Pos.CENTER_LEFT, "#abb8c3", Color.BLACK, 14);
+        if (msgFromClient.startsWith("IMAGE-")) {
+            String[] parts = msgFromClient.split("-");
+            String sender = parts[1];
+            String filePath = parts[2];
+            displayImage(sender, filePath);
+        } else {
+            addMessageToChatBox(msgFromClient, Pos.CENTER_LEFT, "#abb8c3", Color.BLACK, 14);
+        }
     }
+
+    private void displayImage(String sender, String filePath) {
+        Image image = new Image("file:" + filePath);
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(200);
+        imageView.setFitWidth(200);
+
+        HBox hBox = new HBox(imageView);
+        hBox.setPadding(new Insets(5, 5, 5, 10));
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        vBox.getChildren().add(hBox);
+    }
+
 
     private static void addMessageToChatBox(String message, Pos alignment, String bgColor, Color textColor, int fontSize) {
         Platform.runLater(() -> {

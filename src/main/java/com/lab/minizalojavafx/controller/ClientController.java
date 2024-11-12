@@ -285,7 +285,7 @@ public class ClientController {
         alertMessage = new AlertMessage();
 
         try {
-            dataOutputStream.writeUTF(clientName + "-" + filePath);
+            dataOutputStream.writeUTF("IMAGE-" + clientName + "-" + filePath);
             dataOutputStream.flush();
 
             dbUtils.saveMessageToDatabase(clientName, recipient, "image");

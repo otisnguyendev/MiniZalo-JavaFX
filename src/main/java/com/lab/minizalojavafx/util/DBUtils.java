@@ -178,7 +178,7 @@ public class DBUtils {
     }
 
     public void saveAttachment(int messageId, String filePath, String fileType) {
-        String query = "INSERT INTO attachments (message_id, file_path, file_type) VALUES (?, ?, ?)";
+        String query = "INSERT INTO attachment (message_id, file_path, file_type) VALUES (?, ?, ?)";
         try (Connection conn = connectToDB();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, messageId);
@@ -211,7 +211,7 @@ public class DBUtils {
     }
 
     public int getLastInsertedMessageId(String sender, String recipient) {
-        String query = "SELECT id FROM message WHERE sender_id = ? AND receiver_id = ? ORDE;R BY timestamp DESC LIMIT 1";
+        String query = "SELECT id FROM message WHERE sender_id = ? AND receiver_id = ? ORDER BY timestamp DESC LIMIT 1";
         try (Connection conn = connectToDB();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
